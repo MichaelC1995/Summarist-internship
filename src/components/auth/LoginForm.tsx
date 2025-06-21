@@ -1,11 +1,11 @@
 'use client';
 
-import { useState } from 'react';
-import { signInWithEmailAndPassword } from 'firebase/auth';
-import { auth } from '@/lib/firebase';
-import { useAppDispatch } from '@/hooks/useAppDispatch';
-import { closeModal, switchModal } from '@/store/modalSlice';
-import { useRouter } from 'next/navigation';
+import {useState} from 'react';
+import {signInWithEmailAndPassword} from 'firebase/auth';
+import {auth} from '@/lib/firebase';
+import {useAppDispatch} from '@/hooks/useAppDispatch';
+import {closeModal, switchModal} from '@/store/modalSlice';
+import {useRouter} from 'next/navigation';
 
 export default function LoginForm() {
     const dispatch = useAppDispatch();
@@ -64,7 +64,7 @@ export default function LoginForm() {
 
     return (
         <div className="w-full">
-            <h2 className="text-2xl font-bold text-center mb-6">Log in to Summarist</h2>
+            <h2 className="text-2xl text-black font-bold text-center mb-6">Log in to Summarist</h2>
 
             {error && (
                 <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded mb-4">
@@ -81,19 +81,19 @@ export default function LoginForm() {
             </button>
 
             <div className="flex items-center gap-4 mb-6">
-                <div className="flex-1 h-px bg-gray-300" />
+                <div className="flex-1 h-px bg-gray-300"/>
                 <span className="text-sm text-gray-500">or</span>
-                <div className="flex-1 h-px bg-gray-300" />
+                <div className="flex-1 h-px bg-gray-300"/>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-4 ">
                 <input
                     type="email"
                     placeholder="Email Address"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
-                    className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                    className="w-full px-4 py-3 border text-black border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
                 />
 
                 <input
@@ -102,7 +102,7 @@ export default function LoginForm() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
-                    className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                    className="w-full px-4 py-3 border text-black border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
                 />
 
                 <button
@@ -116,20 +116,17 @@ export default function LoginForm() {
 
             <button
                 onClick={() => dispatch(switchModal('forgotPassword'))}
-                className="w-full text-center text-green-500 hover:text-green-600 mt-4 text-sm"
+                className="w-full text-center text-blue-500 hover:text-black mt-4 text-sm cursor-pointer"
             >
                 Forgot your password?
             </button>
 
-            <p className="text-center text-gray-600 mt-6">
+            <button
+                onClick={() => dispatch(switchModal('register'))}
+                className="text-blue-500 hover:text-black bg-gray-300 font-medium w-full text-center p-4 mt-4 cursor-pointer"
+            >
                 Don't have an account?{' '}
-                <button
-                    onClick={() => dispatch(switchModal('register'))}
-                    className="text-green-500 hover:text-green-600 font-medium"
-                >
-                    Sign up
-                </button>
-            </p>
+            </button>
         </div>
     );
 }

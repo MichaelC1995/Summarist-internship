@@ -20,6 +20,7 @@ import {
     IoMenuOutline,
     IoCloseOutline
 } from 'react-icons/io5';
+import Image from "next/image";
 
 interface NavItem {
     label: string;
@@ -157,11 +158,14 @@ export default function Sidebar() {
                 <div className="flex flex-col h-full">
                     <div className="p-5 border-b border-gray-200">
                         <div className="flex items-center justify-between">
-                            <Link href="/" className="flex items-center gap-2">
-                                <div className="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center">
-                                    <span className="text-white font-bold text-lg">S</span>
-                                </div>
-                                <span className="text-xl font-bold text-gray-800">Summarist</span>
+                            <Link href="/" className="flex items-center">
+                                <Image
+                                    src="/logo.png"
+                                    alt="Summarist Logo"
+                                    width={200}
+                                    height={100}
+                                    className="object-contain"
+                                />
                             </Link>
 
                             <button
@@ -190,7 +194,7 @@ export default function Sidebar() {
                     </div>
 
                     {user && (
-                        <div className="p-5 border-t border-gray-200">
+                        <div className="p-3 border-t border-gray-200">
                             <div className="flex items-center gap-3">
                                 <div className="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center">
                   <span className="text-gray-600 font-medium">

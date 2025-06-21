@@ -8,7 +8,7 @@ const apiClient = axios.create({
     timeout: 10000, // 10 seconds
 });
 
-apiClient.interceptors.response.use(
+ apiClient.interceptors.response.use(
     response => response,
     error => {
         console.error('API Error:', error);

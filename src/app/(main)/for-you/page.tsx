@@ -80,7 +80,6 @@ export default function ForYouPage() {
                 href={`/book/${selectedBook.id}`}
                 className="flex gap-6 p-6 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors group"
             >
-                {/* Book Cover */}
                 <div className="relative w-32 h-40 flex-shrink-0 bg-gray-200 rounded-lg">
                     {selectedBook.imageLink && selectedBook.imageLink.trim() !== '' ? (
                         <Image
@@ -102,7 +101,6 @@ export default function ForYouPage() {
                     )}
                 </div>
 
-                {/* Book Info */}
                 <div className="flex-1">
                     <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-green-600 transition-colors">
                         {selectedBook.title || 'Untitled Book'}
@@ -112,7 +110,6 @@ export default function ForYouPage() {
                         {selectedBook.subTitle || 'No description available'}
                     </p>
 
-                    {/* Stats - with safety checks */}
                     <div className="flex items-center gap-4 mt-3 text-sm text-gray-500">
                         <span>{formatDuration(selectedBook.duration || 0)}</span>
                         {selectedBook.averageRating !== undefined && (
@@ -129,7 +126,6 @@ export default function ForYouPage() {
 
     return (
         <div className="max-w-7xl mx-auto px-4 py-8">
-            {/* Selected Book Section */}
             <section className="mb-12">
                 <h2 className="text-2xl font-bold text-gray-900 mb-6">
                     Selected just for you
@@ -137,14 +133,12 @@ export default function ForYouPage() {
                 <SelectedBookSection />
             </section>
 
-            {/* Recommended Books */}
             <section className="mb-12">
                 <h2 className="text-2xl font-bold text-gray-900 mb-6">
                     Recommended For You
                 </h2>
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
                     {loading ? (
-                        // Why: Show 5 skeletons while loading
                         Array.from({ length: 5 }).map((_, index) => (
                             <BookSkeleton key={index} />
                         ))

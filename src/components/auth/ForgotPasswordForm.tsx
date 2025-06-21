@@ -37,7 +37,7 @@ export default function ForgotPasswordForm() {
     if (success) {
         return (
             <div className="w-full text-center">
-                <h2 className="text-2xl font-bold mb-4">Check your email</h2>
+                <h2 className="text-2xl text-black font-bold mb-4">Check your email</h2>
                 <p className="text-gray-600 mb-6">
                     We've sent a password reset link to {email}
                 </p>
@@ -53,8 +53,8 @@ export default function ForgotPasswordForm() {
 
     return (
         <div className="w-full">
-            <h2 className="text-2xl font-bold text-center mb-6">Reset your password</h2>
-            <p className="text-gray-600 text-center mb-6">
+            <h2 className="text-2xl text-black font-bold text-center mb-6">Reset your password</h2>
+            <p className="text-black text-center mb-6">
                 Enter your email address and we'll send you a link to reset your password.
             </p>
 
@@ -72,7 +72,7 @@ export default function ForgotPasswordForm() {
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         required
-                        className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                        className="w-full text-black px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
                     />
                 </div>
 
