@@ -381,7 +381,7 @@ export default function HomePage() {
                         </div>
 
                         <div>
-                            <h3 className="font-semibold text-white mb-4">Other</h3>
+                            <h3 className="font-semibold text-black mb-4">Other</h3>
                             <ul className="space-y-2">
                                 <li><Link href="#" className="hover:text-white cursor-not-allowed">Sitemap</Link></li>
                                 <li><Link href="#" className="hover:text-white cursor-not-allowed">Legal Notice</Link></li>

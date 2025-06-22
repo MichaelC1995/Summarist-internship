@@ -123,7 +123,7 @@ export default function Sidebar() {
             <Link
                 href={item.href}
                 className={`${baseClasses} ${activeClasses} ${disabledClasses}`}
-                onClick={() => setIsMobileOpen(false)} // Close mobile menu
+                onClick={() => setIsMobileOpen(false)}
             >
                 {item.icon}
                 <span className="font-medium">{item.label}</span>
@@ -155,7 +155,7 @@ export default function Sidebar() {
           ${isMobileOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
         `}
             >
-                <div className="flex flex-col h-full">
+                <div className="flex flex-col h-full bg-[#f1f6f4]">
                     <div className="p-5 border-b border-gray-200">
                         <div className="flex items-center justify-between">
                             <Link href="/" className="flex items-center">

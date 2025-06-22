@@ -3,21 +3,21 @@
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Image from 'next/image';
-import { bookAPI, formatDuration } from '@/lib/api';
+import { bookAPI } from '@/lib/api';
 import { Book } from '@/types';
 import { useAuth } from '@/hooks/useAuth';
 import { useAppDispatch } from '@/hooks/useAppDispatch';
 import { openModal } from '@/store/modalSlice';
+import { setIntendedDestination } from '@/store/authSlice';
 import { doc, setDoc, deleteDoc, getDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import {
     IoStar,
-    IoTimeOutline,
     IoBookOutline,
-    IoBulbOutline,
-    IoBookmarkOutline,
     IoBookmark,
-    IoHeadset
+    IoMicOutline,
+    IoTimeOutline,
+    IoBulbOutline,
 } from 'react-icons/io5';
 
 export default function BookDetailsPage() {
@@ -69,6 +69,7 @@ export default function BookDetailsPage() {
 
     const handleReadClick = () => {
         if (!user) {
+            dispatch(setIntendedDestination(`/player/${book?.id}`));
             dispatch(openModal('login'));
             return;
         }
@@ -83,6 +84,7 @@ export default function BookDetailsPage() {
 
     const handleSaveToLibrary = async () => {
         if (!user) {
+            dispatch(setIntendedDestination(`/book/${book?.id}`));
             dispatch(openModal('login'));
             return;
         }
@@ -112,21 +114,35 @@ export default function BookDetailsPage() {
         }
     };
 
+    const formatDuration = (seconds: number) => {
+        if (!seconds) return '00:00';
+        const minutes = Math.floor(seconds / 60);
+        const remainingSeconds = seconds % 60;
+        return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+    };
+
     if (loading) {
         return (
-            <div className="max-w-4xl mx-auto px-4 py-8">
-                <div className="animate-pulse">
-                    <div className="flex flex-col md:flex-row gap-8">
-                        <div className="w-full md:w-64 h-80 bg-gray-200 rounded-lg"></div>
-                        <div className="flex-1 space-y-4">
-                            <div className="h-8 bg-gray-200 rounded w-3/4"></div>
-                            <div className="h-6 bg-gray-200 rounded w-1/2"></div>
-                            <div className="h-20 bg-gray-200 rounded"></div>
-                            <div className="flex gap-4">
-                                <div className="h-10 bg-gray-200 rounded w-32"></div>
-                                <div className="h-10 bg-gray-200 rounded w-32"></div>
+            <div className="py-10 px-6 max-w-7xl mx-auto">
+                <div className="flex flex-col lg:flex-row gap-12">
+                    <div className="lg:w-3/5">
+                        <div className="animate-pulse">
+                            <div className="h-10 bg-gray-200 rounded w-3/4 mb-4"></div>
+                            <div className="h-6 bg-gray-200 rounded w-1/2 mb-4"></div>
+                            <div className="h-6 bg-gray-200 rounded w-full mb-8"></div>
+                            <div className="flex gap-8 mb-8">
+                                <div className="h-5 bg-gray-200 rounded w-24"></div>
+                                <div className="h-5 bg-gray-200 rounded w-20"></div>
+                                <div className="h-5 bg-gray-200 rounded w-28"></div>
+                            </div>
+                            <div className="flex gap-4 mb-8">
+                                <div className="h-12 bg-gray-200 rounded w-32"></div>
+                                <div className="h-12 bg-gray-200 rounded w-32"></div>
                             </div>
                         </div>
+                    </div>
+                    <div className="lg:w-2/5">
+                        <div className="h-[400px] bg-gray-200 rounded"></div>
                     </div>
                 </div>
             </div>
@@ -139,7 +155,7 @@ export default function BookDetailsPage() {
                 <p className="text-gray-500 mb-4">Book not found</p>
                 <button
                     onClick={() => router.push('/for-you')}
-                    className="text-green-500 hover:text-green-600"
+                    className="text-blue-600 hover:text-blue-700"
                 >
                     Go back to For You
                 </button>
@@ -148,80 +164,59 @@ export default function BookDetailsPage() {
     }
 
     return (
-        <div className="max-w-4xl mx-auto px-4 py-8">
-            {/* Book Header Section */}
-            <div className="flex flex-col md:flex-row gap-8 mb-12">
-                {/* Book Cover */}
-                <div className="w-full md:w-64 flex-shrink-0">
-                    <div className="relative aspect-[3/4] rounded-lg overflow-hidden bg-gray-100">
-                        {book.imageLink && book.imageLink.trim() !== '' ? (
-                            <Image
-                                src={book.imageLink}
-                                alt={book.title || 'Book cover'}
-                                fill
-                                className="object-cover"
-                                priority
-                                sizes="(max-width: 768px) 100vw, 256px"
-                            />
-                        ) : (
-                            <div className="absolute inset-0 flex items-center justify-center bg-gray-200">
-                                <IoBookOutline size={64} className="text-gray-400" />
-                            </div>
-                        )}
-                        {book.subscriptionRequired && (
-                            <span className="absolute top-4 right-4 bg-black text-white text-sm px-3 py-1 rounded">
-                Premium
-              </span>
-                        )}
-                    </div>
-                </div>
-
-                <div className="flex-1">
-                    <h1 className="text-3xl font-bold text-gray-900 mb-3">
+        <div className="py-10 px-6 max-w-7xl mx-auto">
+            <div className="flex flex-col lg:flex-row gap-12">
+                {/* Left Column - Book Info */}
+                <div className="lg:w-3/5">
+                    <h1 className="text-3xl font-bold text-gray-900 mb-2">
                         {book.title || 'Untitled Book'}
                     </h1>
-                    <p className="text-xl text-gray-600 mb-4">{book.author || 'Unknown Author'}</p>
+                    <p className="text-lg text-gray-700 font-medium mb-2">
+                        {book.author || 'Unknown Author'}
+                    </p>
                     {book.subTitle && (
-                        <p className="text-lg text-gray-700 mb-6">{book.subTitle}</p>
+                        <p className="text-xl text-gray-600 mb-6">{book.subTitle}</p>
                     )}
 
-                    <div className="flex flex-wrap items-center gap-6 mb-6 text-sm">
-                        {book.averageRating !== undefined && (
+                    {/* Book Metadata */}
+                    <div className="border-y border-gray-300 py-4 mb-8">
+                        <div className="grid grid-cols-2 gap-y-3 text-gray-700">
+                            {book.averageRating !== undefined && (
+                                <div className="flex items-center gap-1">
+                                    <IoStar className="text-yellow-400" size={18} />
+                                    <span className="font-medium">{book.averageRating.toFixed(1)}</span>
+                                    {book.totalRating !== undefined && (
+                                        <span className="text-gray-500">
+                                            ({book.totalRating.toLocaleString()} ratings)
+                                        </span>
+                                    )}
+                                </div>
+                            )}
+
                             <div className="flex items-center gap-2">
-                                <IoStar className="text-yellow-400" size={20} />
-                                <span className="font-medium">{book.averageRating.toFixed(1)}</span>
-                                {book.totalRating !== undefined && (
-                                    <span className="text-gray-500">
-                    ({book.totalRating.toLocaleString()} ratings)
-                  </span>
-                                )}
+                                <IoTimeOutline size={18} />
+                                <span>{formatDuration(book.duration || 0)}</span>
                             </div>
-                        )}
 
-                        <div className="flex items-center gap-2 text-gray-600">
-                            <IoTimeOutline size={20} />
-                            <span>{formatDuration(book.duration || 0)}</span>
+                            <div className="flex items-center gap-2">
+                                <IoMicOutline size={18} />
+                                <span>Audio & Text</span>
+                            </div>
+
+                            {book.keyIdeas !== undefined && (
+                                <div className="flex items-center gap-2">
+                                    <IoBulbOutline size={18} />
+                                    <span>{book.keyIdeas} Key ideas</span>
+                                </div>
+                            )}
                         </div>
-
-                        {book.type && (
-                            <div className="flex items-center gap-2 text-gray-600">
-                                <IoBookOutline size={20} />
-                                <span>{book.type}</span>
-                            </div>
-                        )}
-
-                        {book.keyIdeas !== undefined && (
-                            <div className="flex items-center gap-2 text-gray-600">
-                                <IoBulbOutline size={20} />
-                                <span>{book.keyIdeas} Key ideas</span>
-                            </div>
-                        )}
                     </div>
 
-                    <div className="flex flex-wrap gap-4 mb-6">
+                    {/* Action Buttons */}
+                    <div className="flex gap-4 mb-8">
                         <button
                             onClick={handleReadClick}
-                            className="flex items-center gap-2 bg-green-500 text-white px-6 py-3 rounded-md hover:bg-green-600 transition-colors"
+                            className="flex items-center gap-2 bg-gray-900 text-white px-6 py-3 rounded hover:bg-gray-800 transition-colors cursor-pointer"
                         >
                             <IoBookOutline size={20} />
                             Read
@@ -229,68 +224,91 @@ export default function BookDetailsPage() {
 
                         <button
                             onClick={handleReadClick}
-                            className="flex items-center gap-2 bg-green-500 text-white px-6 py-3 rounded-md hover:bg-green-600 transition-colors"
+                            className="flex items-center gap-2 bg-gray-900 text-white px-6 py-3 rounded hover:bg-gray-800 transition-colors cursor-pointer"
                         >
-                            <IoHeadset size={20} />
+                            <IoMicOutline size={20} />
                             Listen
                         </button>
                     </div>
 
+                    {/* Add to Library Button */}
                     <button
                         onClick={handleSaveToLibrary}
                         disabled={isSaving}
-                        className="flex items-center gap-2 text-gray-600 hover:text-gray-800 transition-colors disabled:opacity-50"
+                        className="flex items-center gap-2 text-blue-600 hover:text-blue-700 transition-colors mb-10 disabled:opacity-50 cursor-pointer"
                     >
-                        {isSaved ? (
-                            <>
-                                <IoBookmark size={20} />
-                                <span>Saved to Library</span>
-                            </>
-                        ) : (
-                            <>
-                                <IoBookmarkOutline size={20} />
-                                <span>Add to My Library</span>
-                            </>
-                        )}
+                        <IoBookmark size={18} />
+                        <span className="font-medium">
+                            {isSaved ? 'Saved to My Library' : 'Add title to My Library'}
+                        </span>
                     </button>
 
-                    {book.tags && book.tags.length > 0 && (
-                        <div className="flex flex-wrap gap-2 mt-6">
-                            {book.tags.map((tag, index) => (
-                                <span
-                                    key={index}
-                                    className="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm"
-                                >
-                  {tag}
-                </span>
-                            ))}
+                    {/* What's it about? Section */}
+                    <div className="mb-10">
+                        <h2 className="text-xl font-bold text-gray-900 mb-4">
+                            What&apos;s it about?
+                        </h2>
+
+                        {/* Tags */}
+                        {book.tags && book.tags.length > 0 && (
+                            <div className="flex flex-wrap gap-3 mb-6">
+                                {book.tags.map((tag, index) => (
+                                    <span
+                                        key={index}
+                                        className="bg-gray-100 text-gray-900 px-4 py-2 rounded-lg font-medium"
+                                    >
+                                        {tag}
+                                    </span>
+                                ))}
+                            </div>
+                        )}
+
+                        {book.bookDescription && (
+                            <p className="text-gray-700 leading-relaxed whitespace-pre-line">
+                                {book.bookDescription}
+                            </p>
+                        )}
+                    </div>
+
+                    {/* About the author Section */}
+                    {book.authorDescription && (
+                        <div>
+                            <h2 className="text-xl font-bold text-gray-900 mb-4">
+                                About the author
+                            </h2>
+                            <p className="text-gray-700 leading-relaxed whitespace-pre-line">
+                                {book.authorDescription}
+                            </p>
                         </div>
                     )}
                 </div>
-            </div>
 
-            <div className="space-y-8">
-                {book.bookDescription && (
-                    <section className="bg-gray-50 rounded-lg p-6">
-                        <h2 className="text-xl font-bold text-gray-900 mb-4">
-                            What's it about?
-                        </h2>
-                        <p className="text-gray-700 leading-relaxed whitespace-pre-line">
-                            {book.bookDescription}
-                        </p>
-                    </section>
-                )}
-
-                {book.authorDescription && (
-                    <section className="bg-gray-50 rounded-lg p-6">
-                        <h2 className="text-xl font-bold text-gray-900 mb-4">
-                            About the author
-                        </h2>
-                        <p className="text-gray-700 leading-relaxed whitespace-pre-line">
-                            {book.authorDescription}
-                        </p>
-                    </section>
-                )}
+                {/* Right Column - Book Cover */}
+                <div className="lg:w-1/4">
+                    <div className="sticky top-8 ">
+                        <div className="relative aspect-[3/4] max-w-md mx-auto bg-gray-100 shadow-lg">
+                            {book.imageLink && book.imageLink.trim() !== '' ? (
+                                <Image
+                                    src={book.imageLink}
+                                    alt={book.title || 'Book cover'}
+                                    fill
+                                    className="object-cover"
+                                    priority
+                                    sizes="(max-width: 768px) 100vw, 400px"
+                                />
+                            ) : (
+                                <div className="absolute inset-0 flex items-center justify-center bg-gray-200">
+                                    <IoBookOutline size={64} className="text-gray-400" />
+                                </div>
+                            )}
+                            {book.subscriptionRequired && (
+                                <span className="absolute top-0 right-0 bg-yellow-400 text-gray-900 text-xs font-bold px-3 py-1 m-2 rounded">
+                                    Premium
+                                </span>
+                            )}
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     );

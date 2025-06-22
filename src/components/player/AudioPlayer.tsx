@@ -191,7 +191,7 @@ export default function AudioPlayer({ book }: AudioPlayerProps) {
                             />
                         </div>
                         <div
-                            className="absolute top-1/2 h-3 w-3 bg-white rounded-full shadow-sm border border-gray-200"
+                            className="absolute top-1/2 h-3 w-3 bg-white pointer-events-none rounded-full shadow-sm border border-gray-200"
                             style={{ left: `${progressPercentage}%`, transform: 'translate(-50%, -50%)' }}
                         />
                     </div>

@@ -5,7 +5,7 @@ const BASE_URL = 'https://us-central1-summaristt.cloudfunctions.net';
 
 const apiClient = axios.create({
     baseURL: BASE_URL,
-    timeout: 10000, // 10 seconds
+    timeout: 10000,
 });
 
  apiClient.interceptors.response.use(
@@ -21,8 +21,19 @@ const apiClient = axios.create({
 
 export const bookAPI = {
     getSelectedBook: async (): Promise<Book> => {
-        const response = await apiClient.get('/getBooks?status=selected');
-        return response.data;
+        try {
+            const response = await apiClient.get('/getBooks?status=selected');
+            console.log('Raw selected book response:', response.data);
+
+            if (Array.isArray(response.data) && response.data.length > 0) {
+                return response.data[0];
+            }
+
+            return response.data;
+        } catch (error) {
+            console.error('Error fetching selected book:', error);
+            throw error;
+        }
     },
 
     getRecommendedBooks: async (): Promise<Book[]> => {

@@ -33,7 +33,7 @@ export default function BookCard({ book, className = '' }: BookCardProps) {
 
                 {/* Premium Badge */}
                 {book.subscriptionRequired && (
-                    <span className="absolute top-2 right-2 bg-black text-white text-xs px-2 py-1 rounded">
+                    <span className="absolute top-0 right-2 bg-black text-white text-xs px-2 py-1 rounded">
       Premium
     </span>
                 )}

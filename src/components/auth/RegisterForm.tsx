@@ -4,14 +4,18 @@ import { useState } from 'react';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
 import { auth, db } from '@/lib/firebase';
-import { useAppDispatch } from '@/hooks/useAppDispatch';
+import { useAppDispatch, useAppSelector } from '@/hooks/useAppDispatch';
 import { closeModal, switchModal } from '@/store/modalSlice';
+import { clearIntendedDestination } from '@/store/authSlice';
 import { FaGoogle } from 'react-icons/fa';
 import { useRouter } from 'next/navigation';
 
 export default function RegisterForm() {
     const dispatch = useAppDispatch();
     const router = useRouter();
+
+    const intendedDestination = useAppSelector((state) => state.auth.intendedDestination);
+
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
@@ -23,10 +27,8 @@ export default function RegisterForm() {
         setLoading(true);
 
         try {
-            // Create user account
             const userCredential = await createUserWithEmailAndPassword(auth, email, password);
 
-            // Create user document in Firestore
             await setDoc(doc(db, 'users', userCredential.user.uid), {
                 uid: userCredential.user.uid,
                 email: userCredential.user.email,
@@ -38,7 +40,13 @@ export default function RegisterForm() {
             });
 
             dispatch(closeModal());
-            router.push('/for-you');
+
+            if (intendedDestination) {
+                router.push(intendedDestination);
+                dispatch(clearIntendedDestination());
+            } else {
+                router.push('/for-you');
+            }
         } catch (error: any) {
             if (error.code === 'auth/email-already-in-use') {
                 setFormError('Email already in use. Please login instead.');
@@ -55,8 +63,14 @@ export default function RegisterForm() {
     };
 
     const handleGoogleSignup = async () => {
-        // Implement Google signup
         console.log('Google signup not implemented yet');
+        // When you implement Google signup, add the same redirect logic:
+        // if (intendedDestination) {
+        //     router.push(intendedDestination);
+        //     dispatch(clearIntendedDestination());
+        // } else {
+        //     router.push('/for-you');
+        // }
     };
 
     return (

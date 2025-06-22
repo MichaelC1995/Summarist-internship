@@ -3,13 +3,16 @@
 import {useState} from 'react';
 import {signInWithEmailAndPassword} from 'firebase/auth';
 import {auth} from '@/lib/firebase';
-import {useAppDispatch} from '@/hooks/useAppDispatch';
+import {useAppDispatch, useAppSelector} from '@/hooks/useAppDispatch';
 import {closeModal, switchModal} from '@/store/modalSlice';
+import {clearIntendedDestination} from '@/store/authSlice';
 import {useRouter} from 'next/navigation';
 
 export default function LoginForm() {
     const dispatch = useAppDispatch();
     const router = useRouter();
+
+    const intendedDestination = useAppSelector((state) => state.auth.intendedDestination);
 
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -24,7 +27,13 @@ export default function LoginForm() {
         try {
             await signInWithEmailAndPassword(auth, email, password);
             dispatch(closeModal());
-            router.push('/for-you');
+
+            if (intendedDestination) {
+                router.push(intendedDestination);
+                dispatch(clearIntendedDestination());
+            } else {
+                router.push('/for-you');
+            }
         } catch (error: any) {
             switch (error.code) {
                 case 'auth/user-not-found':
@@ -54,7 +63,13 @@ export default function LoginForm() {
         try {
             await signInWithEmailAndPassword(auth, 'guest@gmail.com', 'guest123');
             dispatch(closeModal());
-            router.push('/for-you');
+
+            if (intendedDestination) {
+                router.push(intendedDestination);
+                dispatch(clearIntendedDestination());
+            } else {
+                router.push('/for-you');
+            }
         } catch (error) {
             setError('Guest login unavailable. Please try again.');
         } finally {

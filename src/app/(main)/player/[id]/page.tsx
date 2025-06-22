@@ -29,8 +29,6 @@ export default function PlayerPage() {
     return (
         <div className="max-w-4xl mx-auto px-4 py-8">
             <h1 className="text-3xl font-bold text-gray-900 mb-4">{book.title}</h1>
-            <p className="text-xl text-gray-600 mb-8">{book.author}</p>
-
 
             <div className="mt-8 bg-gray-50 rounded-lg p-6">
                 <h2 className="text-xl font-bold text-gray-900 mb-4">Summary</h2>

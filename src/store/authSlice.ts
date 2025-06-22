@@ -5,12 +5,14 @@ interface AuthState {
     user: User | null;
     loading: boolean;
     error: string | null;
+    intendedDestination: string | null;
 }
 
 const initialState: AuthState = {
     user: null,
     loading: true,
     error: null,
+    intendedDestination: null,
 };
 
 const authSlice = createSlice({
@@ -29,13 +31,28 @@ const authSlice = createSlice({
             state.error = action.payload;
             state.loading = false;
         },
+        setIntendedDestination: (state, action: PayloadAction<string | null>) => {
+            state.intendedDestination = action.payload;
+        },
+        clearIntendedDestination: (state) => {
+            state.intendedDestination = null;
+        },
         logout: (state) => {
             state.user = null;
             state.loading = false;
             state.error = null;
+            state.intendedDestination = null;
         },
     },
 });
 
-export const { setUser, setLoading, setError, logout } = authSlice.actions;
+export const {
+    setUser,
+    setLoading,
+    setError,
+    setIntendedDestination,
+    clearIntendedDestination,
+    logout
+} = authSlice.actions;
+
 export default authSlice.reducer;
