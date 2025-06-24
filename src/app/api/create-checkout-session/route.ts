@@ -1,13 +1,23 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-    apiVersion: '2023-10-16',
-});
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
 export async function POST(req: NextRequest) {
     try {
-        const { userId, priceId, plan } = await req.json();
+        const body = await req.json();
+        console.log('Creating checkout session with:', body);
+
+        const { userId, priceId, plan } = body;
+
+        if (!userId || !priceId || !plan) {
+            return NextResponse.json(
+                { error: 'Missing required fields: userId, priceId, or plan' },
+                { status: 400 }
+            );
+        }
+
+        console.log('Creating session for:', { userId, plan, priceId });
 
         const session = await stripe.checkout.sessions.create({
             payment_method_types: ['card'],
@@ -20,25 +30,45 @@ export async function POST(req: NextRequest) {
             mode: 'subscription',
             success_url: `${process.env.NEXT_PUBLIC_BASE_URL}/success?session_id={CHECKOUT_SESSION_ID}`,
             cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/choose-plan`,
+
             metadata: {
-                userId,
-                plan,
+                userId: userId,
+                plan: plan,
             },
+
             subscription_data: {
-                trial_period_days: plan === 'yearly' ? 7 : 0,
                 metadata: {
-                    userId,
-                    plan,
+                    userId: userId,
+                    plan: plan,
                 },
+                ...(plan === 'yearly' && { trial_period_days: 7 }),
             },
+
+            customer_email: undefined, // Let customer enter email
+
             payment_method_collection: 'always',
+
+            billing_address_collection: 'auto',
         });
 
-        return NextResponse.json({ sessionId: session.id });
-    } catch (error) {
-        console.error('Stripe checkout error:', error);
+        console.log('✅ Session created successfully:', {
+            sessionId: session.id,
+            mode: session.mode,
+            hasMetadata: !!session.metadata,
+            metadata: session.metadata
+        });
+
+        return NextResponse.json({
+            sessionId: session.id,
+            url: session.url
+        });
+    } catch (error: any) {
+        console.error('❌ Stripe checkout error:', error);
         return NextResponse.json(
-            { error: 'Failed to create checkout session' },
+            {
+                error: error?.message || 'Failed to create checkout session',
+                code: error?.code || 'unknown_error',
+            },
             { status: 500 }
         );
     }
