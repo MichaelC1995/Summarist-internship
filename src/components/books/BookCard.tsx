@@ -1,16 +1,51 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Book } from '@/types';
 import { IoStar, IoTimeOutline, IoBookOutline } from 'react-icons/io5';
 import { formatDuration } from '@/lib/api';
+
 interface BookCardProps {
     book: Book;
     className?: string;
 }
 
 export default function BookCard({ book, className = '' }: BookCardProps) {
+    const [audioDuration, setAudioDuration] = useState<number | null>(null);
+    const [loadingDuration, setLoadingDuration] = useState(false);
+
+    useEffect(() => {
+        if (book.audioLink && !book.duration) {
+            setLoadingDuration(true);
+            const audio = new Audio();
+
+            const handleLoadedMetadata = () => {
+                setAudioDuration(audio.duration);
+                setLoadingDuration(false);
+            };
+
+            const handleError = () => {
+                console.error('Failed to load audio duration for:', book.title);
+                setLoadingDuration(false);
+            };
+
+            audio.addEventListener('loadedmetadata', handleLoadedMetadata);
+            audio.addEventListener('error', handleError);
+
+            audio.src = book.audioLink;
+
+            return () => {
+                audio.removeEventListener('loadedmetadata', handleLoadedMetadata);
+                audio.removeEventListener('error', handleError);
+                audio.src = '';
+            };
+        }
+    }, [book.audioLink, book.duration, book.title]);
+
+    const duration = book.duration || audioDuration || 0;
+
     return (
         <Link
             href={`/book/${book.id}`}
@@ -31,11 +66,10 @@ export default function BookCard({ book, className = '' }: BookCardProps) {
                     </div>
                 )}
 
-                {/* Premium Badge */}
                 {book.subscriptionRequired && (
                     <span className="absolute top-0 right-2 bg-black text-white text-xs px-2 py-1 rounded">
-      Premium
-    </span>
+                        Premium
+                    </span>
                 )}
             </div>
 
@@ -46,13 +80,15 @@ export default function BookCard({ book, className = '' }: BookCardProps) {
             <p className="text-sm text-gray-600 mb-2">{book.author}</p>
 
             <div className="flex items-center gap-3 text-sm text-gray-500">
-                {/* Duration */}
                 <div className="flex items-center gap-1">
                     <IoTimeOutline size={16} />
-                    <span>{formatDuration(book.duration || 0)}</span>
+                    {loadingDuration ? (
+                        <span className="text-xs">Loading...</span>
+                    ) : (
+                        <span>{formatDuration(duration)}</span>
+                    )}
                 </div>
 
-                {/* Rating - with safety check */}
                 {book.averageRating !== undefined && (
                     <div className="flex items-center gap-1">
                         <IoStar className="text-yellow-400" size={16} />

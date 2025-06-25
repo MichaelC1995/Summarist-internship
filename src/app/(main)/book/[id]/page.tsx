@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Image from 'next/image';
-import { bookAPI } from '@/lib/api';
+import { bookAPI, formatDuration } from '@/lib/api';
 import { Book } from '@/types';
 import { useAuth } from '@/hooks/useAuth';
 import { useAppDispatch } from '@/hooks/useAppDispatch';
@@ -20,6 +20,18 @@ import {
     IoBulbOutline,
 } from 'react-icons/io5';
 
+const verifyUserSubscription = async (userId: string): Promise<'basic' | 'premium' | 'premium-plus'> => {
+    try {
+        const userDoc = await getDoc(doc(db, 'users', userId));
+        const userData = userDoc.data();
+
+        return userData?.subscriptionType || 'basic';
+    } catch (error) {
+        console.error('Error verifying subscription:', error);
+        return 'basic';
+    }
+};
+
 export default function BookDetailsPage() {
     const params = useParams();
     const bookId = params.id as string;
@@ -32,6 +44,8 @@ export default function BookDetailsPage() {
     const [loading, setLoading] = useState(true);
     const [isSaved, setIsSaved] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
+    const [audioDuration, setAudioDuration] = useState<number | null>(null);
+    const [loadingDuration, setLoadingDuration] = useState(false);
 
     useEffect(() => {
         const fetchBook = async () => {
@@ -52,6 +66,34 @@ export default function BookDetailsPage() {
     }, [bookId]);
 
     useEffect(() => {
+        if (book?.audioLink && !book?.duration) {
+            setLoadingDuration(true);
+            const audio = new Audio();
+
+            const handleLoadedMetadata = () => {
+                setAudioDuration(audio.duration);
+                setLoadingDuration(false);
+            };
+
+            const handleError = () => {
+                console.error('Failed to load audio duration for:', book.title);
+                setLoadingDuration(false);
+            };
+
+            audio.addEventListener('loadedmetadata', handleLoadedMetadata);
+            audio.addEventListener('error', handleError);
+
+            audio.src = book.audioLink;
+
+            return () => {
+                audio.removeEventListener('loadedmetadata', handleLoadedMetadata);
+                audio.removeEventListener('error', handleError);
+                audio.src = '';
+            };
+        }
+    }, [book?.audioLink, book?.duration, book?.title]);
+
+    useEffect(() => {
         const checkIfSaved = async () => {
             if (!user || !book) return;
 
@@ -67,16 +109,26 @@ export default function BookDetailsPage() {
         checkIfSaved();
     }, [user, book]);
 
-    const handleReadClick = () => {
+    const handleReadClick = async () => {
         if (!user) {
             dispatch(setIntendedDestination(`/player/${book?.id}`));
             dispatch(openModal('login'));
             return;
         }
 
-        if (book?.subscriptionRequired && user.subscriptionType === 'basic') {
-            router.push('/choose-plan');
-            return;
+        if (book?.subscriptionRequired) {
+            try {
+                const currentSubscriptionType = await verifyUserSubscription(user.uid);
+
+                if (currentSubscriptionType === 'basic') {
+                    router.push('/choose-plan');
+                    return;
+                }
+            } catch (error) {
+                console.error('Error checking subscription:', error);
+                router.push('/choose-plan');
+                return;
+            }
         }
 
         router.push(`/player/${book?.id}`);
@@ -114,12 +166,7 @@ export default function BookDetailsPage() {
         }
     };
 
-    const formatDuration = (seconds: number) => {
-        if (!seconds) return '00:00';
-        const minutes = Math.floor(seconds / 60);
-        const remainingSeconds = seconds % 60;
-        return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
-    };
+    const duration = book?.duration || audioDuration || 0;
 
     if (loading) {
         return (
@@ -166,7 +213,6 @@ export default function BookDetailsPage() {
     return (
         <div className="py-10 px-6 max-w-7xl mx-auto">
             <div className="flex flex-col lg:flex-row gap-12">
-                {/* Left Column - Book Info */}
                 <div className="lg:w-3/5">
                     <h1 className="text-3xl font-bold text-gray-900 mb-2">
                         {book.title || 'Untitled Book'}
@@ -178,7 +224,6 @@ export default function BookDetailsPage() {
                         <p className="text-xl text-gray-600 mb-6">{book.subTitle}</p>
                     )}
 
-                    {/* Book Metadata */}
                     <div className="border-y border-gray-300 py-4 mb-8">
                         <div className="grid grid-cols-2 gap-y-3 text-gray-700">
                             {book.averageRating !== undefined && (
@@ -195,7 +240,11 @@ export default function BookDetailsPage() {
 
                             <div className="flex items-center gap-2">
                                 <IoTimeOutline size={18} />
-                                <span>{formatDuration(book.duration || 0)}</span>
+                                {loadingDuration ? (
+                                    <span className="animate-pulse">--:--</span>
+                                ) : (
+                                    <span>{formatDuration(duration)}</span>
+                                )}
                             </div>
 
                             <div className="flex items-center gap-2">
@@ -212,7 +261,6 @@ export default function BookDetailsPage() {
                         </div>
                     </div>
 
-                    {/* Action Buttons */}
                     <div className="flex gap-4 mb-8">
                         <button
                             onClick={handleReadClick}
@@ -231,7 +279,6 @@ export default function BookDetailsPage() {
                         </button>
                     </div>
 
-                    {/* Add to Library Button */}
                     <button
                         onClick={handleSaveToLibrary}
                         disabled={isSaving}
@@ -243,13 +290,11 @@ export default function BookDetailsPage() {
                         </span>
                     </button>
 
-                    {/* What's it about? Section */}
                     <div className="mb-10">
                         <h2 className="text-xl font-bold text-gray-900 mb-4">
                             What&apos;s it about?
                         </h2>
 
-                        {/* Tags */}
                         {book.tags && book.tags.length > 0 && (
                             <div className="flex flex-wrap gap-3 mb-6">
                                 {book.tags.map((tag, index) => (
@@ -270,7 +315,6 @@ export default function BookDetailsPage() {
                         )}
                     </div>
 
-                    {/* About the author Section */}
                     {book.authorDescription && (
                         <div>
                             <h2 className="text-xl font-bold text-gray-900 mb-4">
@@ -283,7 +327,6 @@ export default function BookDetailsPage() {
                     )}
                 </div>
 
-                {/* Right Column - Book Cover */}
                 <div className="lg:w-1/4">
                     <div className="sticky top-8 ">
                         <div className="relative aspect-[3/4] max-w-md mx-auto bg-gray-100 shadow-lg">

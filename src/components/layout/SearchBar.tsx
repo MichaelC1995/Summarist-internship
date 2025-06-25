@@ -87,10 +87,6 @@ export default function SearchBar() {
             <div className="max-w-3xl mx-auto" ref={searchRef}>
                 <div className="relative">
                     <div className="relative">
-                        <IoSearchOutline
-                            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-black"
-                            size={20}
-                        />
                         <input
                             ref={inputRef}
                             type="text"
@@ -101,9 +97,14 @@ export default function SearchBar() {
                             }}
                             onFocus={() => setIsOpen(true)}
                             placeholder="Search for books"
-                            className="w-full pl-10 pr-10 py-2 border border-gray-300 bg-[#f1f6f4] text-black rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                            className="w-full pl-4 pr-10 py-2 border border-gray-300 bg-[#f1f6f4] text-black rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
                         />
-                        {query && (
+                        {!query ? (
+                            <IoSearchOutline
+                                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none"
+                                size={20}
+                            />
+                        ) : (
                             <button
                                 onClick={() => {
                                     setQuery('');

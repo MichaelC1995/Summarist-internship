@@ -44,7 +44,7 @@ export async function POST(req: NextRequest) {
                 ...(plan === 'yearly' && { trial_period_days: 7 }),
             },
 
-            customer_email: undefined, // Let customer enter email
+            customer_email: undefined,
 
             payment_method_collection: 'always',
 

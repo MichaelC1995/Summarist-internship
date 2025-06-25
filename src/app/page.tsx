@@ -29,11 +29,9 @@ export default function HomePage() {
 
     return (
         <div className="min-h-screen bg-white">
-            {/* Navigation */}
             <nav className="fixed top-0 left-0 right-0 bg-white z-40 shadow-sm">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex justify-between items-center h-20">
-                        {/* Logo */}
                         <Link href="/" className="flex items-center">
                             <Image
                                 src="/logo.png"
@@ -44,7 +42,6 @@ export default function HomePage() {
                             />
                         </Link>
 
-                        {/* Desktop Menu */}
                         <div className="hidden md:flex items-center space-x-8">
                             <button
                                 onClick={handleLogin}
@@ -57,7 +54,6 @@ export default function HomePage() {
                             <Link href="#" className="text-gray-700 hover:text-gray-900 cursor-not-allowed">Help</Link>
                         </div>
 
-                        {/* Mobile Menu Button */}
                         <button
                             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                             className="md:hidden p-2"
@@ -66,7 +62,6 @@ export default function HomePage() {
                         </button>
                     </div>
 
-                    {/* Mobile Menu */}
                     {isMobileMenuOpen && (
                         <div className="md:hidden py-4 border-t">
                             <button
@@ -92,7 +87,6 @@ export default function HomePage() {
                 </div>
             </nav>
 
-            {/* Landing Section */}
             <section className="pt-32 pb-16 px-4 sm:px-6 lg:px-8">
                 <div className="max-w-7xl mx-auto">
                     <div className="grid md:grid-cols-2 gap-12 items-center">
@@ -123,7 +117,6 @@ export default function HomePage() {
                 </div>
             </section>
 
-            {/* Features Section */}
             <section className="py-16 bg-white">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <h2 className="text-3xl md:text-4xl font-bold text-center text-gray-900 mb-12">
@@ -165,9 +158,7 @@ export default function HomePage() {
                         </div>
                     </div>
 
-                    {/* Statistics */}
                     <div className="grid md:grid-cols-2 gap-12 items-center">
-                        {/* Left Column */}
                         <div>
                             <div className="space-y-4 flex-col">
                                 <h3 className="text-3xl font-semibold text-left text-gray-700 stats-text-0">Enhance your knowledge</h3>
@@ -179,7 +170,6 @@ export default function HomePage() {
                             </div>
                         </div>
 
-                        {/* Right Column */}
                         <div className="flex flex-col justify-center">
                             <div className="bg-[#f1f6f4] gap-y-4 p-4 sm:p-5 md:p-8 lg:p-10 rounded-xl shadow-sm space-y-3 sm:space-y-4 min-h-[300px] sm:min-h-[320px] md:min-h-[350px] flex flex-col justify-center">
                                 <div className="flex items-start gap-2 sm:gap-3 md:gap-4">
@@ -204,9 +194,7 @@ export default function HomePage() {
                         </div>
                     </div>
 
-                    {/* Second Statistics Row */}
                     <div className="grid md:grid-cols-2 gap-12 mt-12 items-center">
-                        {/* Left Column */}
                         <div className="flex flex-col justify-center order-1 md:order-2">
                             <div className="bg-[#f1f6f4] p-4 sm:p-5 md:p-8 lg:p-10 rounded-xl shadow-sm space-y-3 sm:space-y-4 min-h-[300px] sm:min-h-[320px] md:min-h-[350px] flex flex-col justify-center">
                                 <div className="flex items-start gap-2 sm:gap-3 md:gap-4">
@@ -233,7 +221,6 @@ export default function HomePage() {
                             </div>
                         </div>
 
-                        {/* Right Column */}
                         <div className="order-1 md:order-2 top-0 right-0">
                             <div className="space-y-6 flex-col items-center justify-center">
                                 <h3 className="text-3xl font-semibold text-right text-gray-700 stats-text-0">Expand your learning</h3>
@@ -248,7 +235,6 @@ export default function HomePage() {
                 </div>
             </section>
 
-            {/* Reviews Section */}
             <section className="py-16">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col justify-center items-center">
                     <h2 className="text-3xl md:text-4xl font-bold text-center text-gray-900 mb-12">
@@ -299,7 +285,6 @@ export default function HomePage() {
                 </div>
             </section>
 
-            {/* Numbers Section */}
             <section className="py-12 sm:py-16">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center text-gray-900 mb-8 sm:mb-10 md:mb-12">
@@ -346,7 +331,6 @@ export default function HomePage() {
                 </div>
             </section>
 
-            {/* Footer */}
             <footer className="py-12 bg-[#f1f6f4] text-black">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="grid md:grid-cols-4 gap-8 mb-8">

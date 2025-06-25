@@ -12,7 +12,6 @@ import {
 import { RiPlantFill } from 'react-icons/ri';
 import { FaHandshake } from 'react-icons/fa';
 
-// Initialize Stripe
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
 
 export default function ChoosePlanPage() {
@@ -20,7 +19,7 @@ export default function ChoosePlanPage() {
     const { user } = useAuth();
     const [selectedPlan, setSelectedPlan] = useState<'monthly' | 'yearly'>('yearly');
     const [isLoading, setIsLoading] = useState(false);
-    const [openAccordion, setOpenAccordion] = useState<number | null>(0); // First item open by default
+    const [openAccordion, setOpenAccordion] = useState<number | null>(0);
 
     const handleCheckout = async () => {
         if (!user) {
@@ -100,7 +99,6 @@ export default function ChoosePlanPage() {
 
     return (
         <div className="min-h-screen bg-white">
-            {/* Hero Section - Dark Blue with Rounded Bottom */}
             <div className="relative bg-slate-800 text-white rounded-b-[200px]">
                 <div className="relative max-w-6xl mx-auto px-6 pt-16 text-center">
                     <h1 className="text-4xl lg:text-5xl font-bold mb-6 leading-tight max-w-4xl mx-auto">
@@ -110,10 +108,8 @@ export default function ChoosePlanPage() {
                         Turn ordinary moments into amazing learning opportunities
                     </p>
 
-                    {/* Centered Image - Silo Shape */}
                     <div className="flex justify-center">
                         <div className="relative">
-                            {/* Silo shape: rounded top + rectangular bottom */}
                             <div className="bg-white overflow-hidden" style={{
                                 width: '350px',
                                 height: '280px',
@@ -135,12 +131,10 @@ export default function ChoosePlanPage() {
                 </div>
             </div>
 
-            {/* Features Section */}
             <div className="max-w-6xl mx-auto px-6 py-16">
                 <div className="grid md:grid-cols-3 gap-12 text-center mb-20">
                     <div>
                         <div className="flex justify-center mb-6">
-                            {/* Document icon */}
                             <IoDocumentText size={52} className="text-slate-600"/>
                         </div>
                         <h3 className="text-lg text-slate-700 leading-relaxed">
@@ -165,15 +159,12 @@ export default function ChoosePlanPage() {
                     </div>
                 </div>
 
-                {/* Pricing Section */}
                 <div className="text-center mb-16">
                     <h2 className="text-3xl font-bold text-slate-800 mb-12">
                         Choose the plan that fits you
                     </h2>
 
-                    {/* Pricing Cards */}
                     <div className="max-w-lg mx-auto space-y-4 mb-8">
-                        {/* Yearly Plan */}
                         <div
                             className={`border-2 rounded-lg p-6 cursor-pointer transition-all ${
                                 selectedPlan === 'yearly'
@@ -200,10 +191,8 @@ export default function ChoosePlanPage() {
                             </div>
                         </div>
 
-                        {/* OR Divider */}
                         <div className="text-gray-400 font-medium py-2">or</div>
 
-                        {/* Monthly Plan */}
                         <div
                             className={`border-2 rounded-lg p-6 cursor-pointer transition-all ${
                                 selectedPlan === 'monthly'
@@ -231,7 +220,6 @@ export default function ChoosePlanPage() {
                         </div>
                     </div>
 
-                    {/* CTA Button */}
                     <button
                         onClick={handleCheckout}
                         disabled={isLoading}
@@ -245,7 +233,6 @@ export default function ChoosePlanPage() {
                     </p>
                 </div>
 
-                {/* FAQ Section */}
                 <div className="max-w-4xl mx-auto">
                     <div className="space-y-1 mb-20">
                         {accordionItems.map((item, index) => (
@@ -280,11 +267,9 @@ export default function ChoosePlanPage() {
                 </div>
             </div>
 
-            {/* Footer */}
             <footer className="bg-gray-50 border-t">
                 <div className="max-w-6xl mx-auto px-6 py-12">
                     <div className="grid md:grid-cols-4 gap-8 mb-8">
-                        {/* Actions */}
                         <div>
                             <h3 className="font-semibold text-gray-800 mb-4">Actions</h3>
                             <ul className="space-y-2 text-gray-600">
@@ -295,7 +280,6 @@ export default function ChoosePlanPage() {
                             </ul>
                         </div>
 
-                        {/* Useful Links */}
                         <div>
                             <h3 className="font-semibold text-gray-800 mb-4">Useful Links</h3>
                             <ul className="space-y-2 text-gray-600">
@@ -306,7 +290,6 @@ export default function ChoosePlanPage() {
                             </ul>
                         </div>
 
-                        {/* Company */}
                         <div>
                             <h3 className="font-semibold text-gray-800 mb-4">Company</h3>
                             <ul className="space-y-2 text-gray-600">
@@ -317,7 +300,6 @@ export default function ChoosePlanPage() {
                             </ul>
                         </div>
 
-                        {/* Other */}
                         <div>
                             <h3 className="font-semibold text-gray-800 mb-4">Other</h3>
                             <ul className="space-y-2 text-gray-600">
@@ -329,7 +311,6 @@ export default function ChoosePlanPage() {
                         </div>
                     </div>
 
-                    {/* Copyright */}
                     <div className="text-center pt-8 border-t border-gray-200">
                         <p className="text-gray-600">Copyright © 2023 Summarist.</p>
                     </div>

@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
-import {bookAPI, formatDuration} from '@/lib/api';
+import { bookAPI, formatDuration } from '@/lib/api';
 import { Book } from '@/types';
 import BookCard from '@/components/books/BookCard';
 import BookSkeleton from '@/components/books/BookSkeleton';
@@ -19,15 +19,23 @@ export default function ForYouPage() {
     const [recommendedBooks, setRecommendedBooks] = useState<Book[]>([]);
     const [suggestedBooks, setSuggestedBooks] = useState<Book[]>([]);
     const [loading, setLoading] = useState(true);
+    const [audioDuration, setAudioDuration] = useState<number | null>(null);
+    const [loadingDuration, setLoadingDuration] = useState(false);
 
     useEffect(() => {
         if (!authLoading && !user) {
-            router.push('/');
+            const timeoutId = setTimeout(() => {
+                router.push('/');
+            }, 100);
+
+            return () => clearTimeout(timeoutId);
         }
     }, [user, authLoading, router]);
 
     useEffect(() => {
         const fetchBooks = async () => {
+            if (!user) return;
+
             try {
                 const [selected, recommended, suggested] = await Promise.all([
                     bookAPI.getSelectedBook(),
@@ -50,12 +58,44 @@ export default function ForYouPage() {
         }
     }, [user]);
 
-    if (authLoading || !user) {
+    useEffect(() => {
+        if (selectedBook?.audioLink && !selectedBook?.duration) {
+            setLoadingDuration(true);
+            const audio = new Audio();
+
+            const handleLoadedMetadata = () => {
+                setAudioDuration(audio.duration);
+                setLoadingDuration(false);
+            };
+
+            const handleError = () => {
+                console.error('Failed to load audio duration for:', selectedBook.title);
+                setLoadingDuration(false);
+            };
+
+            audio.addEventListener('loadedmetadata', handleLoadedMetadata);
+            audio.addEventListener('error', handleError);
+
+            audio.src = selectedBook.audioLink;
+
+            return () => {
+                audio.removeEventListener('loadedmetadata', handleLoadedMetadata);
+                audio.removeEventListener('error', handleError);
+                audio.src = '';
+            };
+        }
+    }, [selectedBook?.audioLink, selectedBook?.duration, selectedBook?.title]);
+
+    if (authLoading) {
         return (
             <div className="flex items-center justify-center min-h-screen">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-500"></div>
             </div>
         );
+    }
+
+    if (!user) {
+        return null;
     }
 
     const SelectedBookSection = () => {
@@ -75,13 +115,13 @@ export default function ForYouPage() {
             );
         }
 
+        const duration = selectedBook.duration || audioDuration || 0;
+
         return (
             <Link
                 href={`/book/${selectedBook.id}`}
                 className="flex max-w-[700px] gap-6 p-4 bg-[#fbeaa6] rounded-lg hover:bg-[#f3e196] transition-colors group"
             >
-
-
                 <div className="flex-1 flex gap-6">
                     <div className="flex-1 pr-6">
                         <p className="text-sm text-gray-700 leading-relaxed">
@@ -117,7 +157,11 @@ export default function ForYouPage() {
                         <div className="flex items-center gap-3 text-sm text-gray-600">
                             <div className="flex items-center gap-1">
                                 <IoTimeOutline size={16} />
-                                <span>{formatDuration(selectedBook.duration || 0)}</span>
+                                {loadingDuration ? (
+                                    <span className="animate-pulse">--:--</span>
+                                ) : (
+                                    <span>{formatDuration(duration)}</span>
+                                )}
                             </div>
                             <div className="flex items-center gap-1">
                                 <IoStar className="text-[#fab906]" size={16} />
@@ -134,9 +178,9 @@ export default function ForYouPage() {
         <div className="max-w-7xl mx-auto px-4 py-8">
             <section className="mb-12">
                 <div className="relative">
-                <h2 className="text-2xl font-bold text-gray-900 mb-6">
-                    Selected just for you
-                </h2>
+                    <h2 className="text-2xl font-bold text-gray-900 mb-6">
+                        Selected just for you
+                    </h2>
                     <SelectedBookSection />
                 </div>
             </section>

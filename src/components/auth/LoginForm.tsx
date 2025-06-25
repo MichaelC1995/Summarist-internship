@@ -35,21 +35,26 @@ export default function LoginForm() {
                 router.push('/for-you');
             }
         } catch (error: any) {
+            console.error('Login error:', error.code, error.message);
+
             switch (error.code) {
-                case 'auth/user-not-found':
-                    setError('No account found with this email.');
+                case 'auth/user-disabled':
+                    setError('This account has been disabled.');
                     break;
-                case 'auth/wrong-password':
-                    setError('Incorrect password.');
+                case 'auth/invalid-credential':
+                    setError('Invalid email or password. Please check your credentials.');
                     break;
-                case 'auth/invalid-email':
-                    setError('Please enter a valid email.');
+                case 'auth/missing-password':
+                    setError('Please enter your password.');
                     break;
                 case 'auth/too-many-requests':
-                    setError('Too many attempts. Please try again later.');
+                    setError('Too many failed attempts. Please try again later.');
+                    break;
+                case 'auth/network-request-failed':
+                    setError('Network error. Please check your connection.');
                     break;
                 default:
-                    setError('Something went wrong. Please try again.');
+                    setError(`Login failed: ${error.message || 'Please try again.'}`);
             }
         } finally {
             setLoading(false);
@@ -70,7 +75,8 @@ export default function LoginForm() {
             } else {
                 router.push('/for-you');
             }
-        } catch (error) {
+        } catch (error: any) {
+            console.error('Guest login error:', error.code, error.message);
             setError('Guest login unavailable. Please try again.');
         } finally {
             setLoading(false);
@@ -82,7 +88,7 @@ export default function LoginForm() {
             <h2 className="text-2xl text-black font-bold text-center mb-6">Log in to Summarist</h2>
 
             {error && (
-                <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded mb-4">
+                <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded mb-4 text-sm">
                     {error}
                 </div>
             )}
@@ -101,7 +107,7 @@ export default function LoginForm() {
                 <div className="flex-1 h-px bg-gray-300"/>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-4 ">
+            <form onSubmit={handleSubmit} className="space-y-4">
                 <input
                     type="email"
                     placeholder="Email Address"
@@ -109,6 +115,7 @@ export default function LoginForm() {
                     onChange={(e) => setEmail(e.target.value)}
                     required
                     className="w-full px-4 py-3 border text-black border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                    autoComplete="email"
                 />
 
                 <input
@@ -118,6 +125,7 @@ export default function LoginForm() {
                     onChange={(e) => setPassword(e.target.value)}
                     required
                     className="w-full px-4 py-3 border text-black border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                    autoComplete="current-password"
                 />
 
                 <button
@@ -140,7 +148,7 @@ export default function LoginForm() {
                 onClick={() => dispatch(switchModal('register'))}
                 className="text-blue-500 hover:text-black bg-gray-300 font-medium w-full text-center p-4 mt-4 cursor-pointer"
             >
-                Don't have an account?{' '}
+                Don't have an account?
             </button>
         </div>
     );

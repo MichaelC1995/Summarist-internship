@@ -7,7 +7,6 @@ import { auth, db } from '@/lib/firebase';
 import { useAppDispatch, useAppSelector } from '@/hooks/useAppDispatch';
 import { closeModal, switchModal } from '@/store/modalSlice';
 import { clearIntendedDestination } from '@/store/authSlice';
-import { FaGoogle } from 'react-icons/fa';
 import { useRouter } from 'next/navigation';
 
 export default function RegisterForm() {
@@ -62,20 +61,9 @@ export default function RegisterForm() {
         }
     };
 
-    const handleGoogleSignup = async () => {
-        console.log('Google signup not implemented yet');
-        // When you implement Google signup, add the same redirect logic:
-        // if (intendedDestination) {
-        //     router.push(intendedDestination);
-        //     dispatch(clearIntendedDestination());
-        // } else {
-        //     router.push('/for-you');
-        // }
-    };
-
     return (
         <div className="w-full">
-            <h2 className="text-2xl font-bold text-center mb-6">Sign up for Summarist</h2>
+            <h2 className="text-2xl font-bold text-black text-center mb-6">Sign up for Summarist</h2>
 
             {formError && (
                 <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded mb-4">
@@ -83,18 +71,9 @@ export default function RegisterForm() {
                 </div>
             )}
 
-            <button
-                onClick={handleGoogleSignup}
-                disabled={loading}
-                className="w-full flex items-center justify-center gap-2 border border-gray-300 py-3 rounded-md hover:bg-gray-50 transition-colors mb-4 disabled:opacity-50"
-            >
-                <FaGoogle />
-                Sign up with Google
-            </button>
-
             <div className="flex items-center gap-4 mb-6">
                 <div className="flex-1 h-px bg-gray-300" />
-                <span className="text-sm text-gray-500">or</span>
+                <span className="text-sm text-black">or</span>
                 <div className="flex-1 h-px bg-gray-300" />
             </div>
 
@@ -106,7 +85,7 @@ export default function RegisterForm() {
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         required
-                        className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                        className="w-full px-4 py-3 border text-black border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
                     />
                 </div>
 
@@ -118,7 +97,7 @@ export default function RegisterForm() {
                         onChange={(e) => setPassword(e.target.value)}
                         required
                         minLength={6}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                        className="w-full px-4 py-3 border text-black border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
                     />
                 </div>
 
@@ -131,7 +110,7 @@ export default function RegisterForm() {
                 </button>
             </form>
 
-            <p className="text-center text-gray-600 mt-6">
+            <p className="text-center text-black mt-6">
                 Already have an account?{' '}
                 <button
                     onClick={() => dispatch(switchModal('login'))}

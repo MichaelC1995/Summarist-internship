@@ -58,7 +58,7 @@ export default function Sidebar() {
         {
             label: 'Highlights',
             icon: <IoPencilOutline size={24} />,
-            disabled: true, // Not implemented
+            disabled: true,
         },
         {
             label: 'Search',

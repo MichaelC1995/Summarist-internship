@@ -60,28 +60,17 @@ export const bookAPI = {
     },
 };
 
-export const getAudioDuration = (audioUrl: string): Promise<number> => {
-    return new Promise((resolve, reject) => {
-        const audio = new Audio(audioUrl);
 
-        audio.addEventListener('loadedmetadata', () => {
-            resolve(audio.duration);
-        });
-
-        audio.addEventListener('error', () => {
-            reject(new Error('Failed to load audio'));
-        });
-    });
-};
-
-export const formatDuration = (seconds: number): string => {
-    if (!seconds || isNaN(seconds)) return '0 mins';
+export function formatDuration(seconds: number): string {
+    if (!seconds || seconds === 0) return '0:00';
 
     const hours = Math.floor(seconds / 3600);
     const minutes = Math.floor((seconds % 3600) / 60);
+    const secs = Math.floor(seconds % 60);
 
     if (hours > 0) {
-        return `${hours} hr ${minutes} min`;
+        return `${hours}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    } else {
+        return `${minutes}:${secs.toString().padStart(2, '0')}`;
     }
-    return `${minutes} min`;
-};
+}
