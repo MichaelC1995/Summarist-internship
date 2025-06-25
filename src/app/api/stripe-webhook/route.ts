@@ -176,7 +176,7 @@ async function updateUserSubscription(
         console.error('❌ Firestore error:', error);
         return NextResponse.json({
             error: 'Firestore error',
-            details: error.toString()
+            details: Error.toString()
         });
     }
 }
