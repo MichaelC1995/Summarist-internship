@@ -120,7 +120,7 @@ export default function AudioPlayer({ book }: AudioPlayerProps) {
             window.removeEventListener('mousemove', handleMouseMove);
             window.removeEventListener('mouseup', handleMouseUp);
         };
-    }, [isDragging]);
+    }, [isDragging, handleMouseMove, handleMouseUp]);
 
     const formatTime = (time: number) => {
         if (isNaN(time) || time === 0) return '00:00';
