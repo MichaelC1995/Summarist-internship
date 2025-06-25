@@ -46,7 +46,7 @@ export default function RegisterForm() {
             } else {
                 router.push('/for-you');
             }
-        } catch (error: any) {
+        } catch (error: unknown) {
             if (error.code === 'auth/email-already-in-use') {
                 setFormError('Email already in use. Please login instead.');
             } else if (error.code === 'auth/weak-password') {

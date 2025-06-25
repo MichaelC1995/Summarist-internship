@@ -8,6 +8,7 @@ import {
     IoPlaySkipBackCircle,
     IoPlaySkipForwardCircle,
 } from 'react-icons/io5';
+import Image from "next/image";
 
 interface AudioPlayerProps {
     book: Book;
@@ -137,7 +138,9 @@ export default function AudioPlayer({ book }: AudioPlayerProps) {
 
                 <div className="flex items-center gap-3">
                     {book.imageLink && (
-                        <img
+                        <Image
+                            width={100}
+                            height={100}
                             src={book.imageLink}
                             alt={book.title}
                             className="w-12 h-12 object-cover rounded-md"

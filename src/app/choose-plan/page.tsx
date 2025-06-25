@@ -229,7 +229,7 @@ export default function ChoosePlanPage() {
                     </button>
 
                     <p className="text-gray-600 text-sm">
-                        Cancel your trial at any time before it ends, and you won't be charged.
+                        Cancel your trial at any time before it ends, and you won&apos;t be charged.
                     </p>
                 </div>
 

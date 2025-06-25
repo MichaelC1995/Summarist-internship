@@ -34,7 +34,7 @@ export default function LoginForm() {
             } else {
                 router.push('/for-you');
             }
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error('Login error:', error.code, error.message);
 
             switch (error.code) {
@@ -75,7 +75,7 @@ export default function LoginForm() {
             } else {
                 router.push('/for-you');
             }
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error('Guest login error:', error.code, error.message);
             setError('Guest login unavailable. Please try again.');
         } finally {
@@ -148,7 +148,7 @@ export default function LoginForm() {
                 onClick={() => dispatch(switchModal('register'))}
                 className="text-blue-500 hover:text-black bg-gray-300 font-medium w-full text-center p-4 mt-4 cursor-pointer"
             >
-                Don't have an account?
+                Don&apos;t have an account?
             </button>
         </div>
     );

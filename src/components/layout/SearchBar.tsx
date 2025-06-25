@@ -134,7 +134,7 @@ export default function SearchBar() {
                                 </div>
                             ) : (
                                 <div className="px-4 py-8 text-center text-gray-500">
-                                    No books found for "{query}"
+                                    No books found for &quot;{query}&quot;
                                 </div>
                             )}
                         </div>
