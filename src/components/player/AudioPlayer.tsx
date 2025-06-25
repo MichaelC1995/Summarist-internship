@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { Book } from '@/types';
 import {
     IoPlayCircle,
@@ -8,7 +8,7 @@ import {
     IoPlaySkipBackCircle,
     IoPlaySkipForwardCircle,
 } from 'react-icons/io5';
-import Image from "next/image";
+import Image from 'next/image';
 
 interface AudioPlayerProps {
     book: Book;
@@ -99,17 +99,17 @@ export default function AudioPlayer({ book }: AudioPlayerProps) {
         updateProgress(e.clientX);
     };
 
-    const handleMouseMove = (e: MouseEvent) => {
+    const handleMouseMove = useCallback((e: MouseEvent) => {
         if (isDragging) {
             updateProgress(e.clientX);
         }
-    };
+    }, [isDragging, duration]); // Include dependencies used in updateProgress
 
-    const handleMouseUp = () => {
+    const handleMouseUp = useCallback(() => {
         if (isDragging) {
             setIsDragging(false);
         }
-    };
+    }, [isDragging]);
 
     useEffect(() => {
         if (isDragging) {
