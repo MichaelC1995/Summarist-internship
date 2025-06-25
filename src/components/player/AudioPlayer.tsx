@@ -99,11 +99,14 @@ export default function AudioPlayer({ book }: AudioPlayerProps) {
         updateProgress(e.clientX);
     };
 
-    const handleMouseMove = useCallback((e: MouseEvent) => {
-        if (isDragging) {
-            updateProgress(e.clientX);
-        }
-    }, [isDragging, duration]); // Include dependencies used in updateProgress
+    const handleMouseMove = useCallback(
+        (e: MouseEvent) => {
+            if (isDragging) {
+                updateProgress(e.clientX);
+            }
+        },
+        [isDragging, duration, updateProgress]
+    );
 
     const handleMouseUp = useCallback(() => {
         if (isDragging) {

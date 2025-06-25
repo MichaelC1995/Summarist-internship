@@ -6,7 +6,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { collection, query, onSnapshot } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { bookAPI } from '@/lib/api';
-import { Book, LibraryBook } from '@/types';
+import { Book } from '@/types';
 import BookCard from '@/components/books/BookCard';
 import { IoBookOutline, IoCheckmarkCircle } from 'react-icons/io5';
 
@@ -30,10 +30,10 @@ export default function LibraryPage() {
         const q = query(libraryRef);
 
         const unsubscribe = onSnapshot(q, async (snapshot) => {
-            const libraryData: LibraryBook[] = [];
+            const libraryData: { bookId: string; finished: boolean }[] = [];
 
             snapshot.forEach((doc) => {
-                libraryData.push(doc.data() as LibraryBook);
+                libraryData.push(doc.data() as { bookId: string; finished: boolean });
             });
 
             const savedBooksPromises: Promise<Book>[] = [];
@@ -41,7 +41,6 @@ export default function LibraryPage() {
 
             libraryData.forEach((item) => {
                 const bookPromise = bookAPI.getBookById(item.bookId);
-
                 if (item.finished) {
                     finishedBooksPromises.push(bookPromise);
                 } else {
@@ -52,7 +51,7 @@ export default function LibraryPage() {
             try {
                 const [saved, finished] = await Promise.all([
                     Promise.all(savedBooksPromises),
-                    Promise.all(finishedBooksPromises)
+                    Promise.all(finishedBooksPromises),
                 ]);
 
                 setSavedBooks(saved);
