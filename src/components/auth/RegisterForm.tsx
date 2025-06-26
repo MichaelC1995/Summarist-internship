@@ -72,9 +72,8 @@ export default function RegisterForm() {
                 </div>
             )}
 
-            <div className="flex items-center gap-4 mb-6">
+            <div className="flex items-center mb-6">
                 <div className="flex-1 h-px bg-gray-300" />
-                <span className="text-sm text-black">or</span>
                 <div className="flex-1 h-px bg-gray-300" />
             </div>
 
