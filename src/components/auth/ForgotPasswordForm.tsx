@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { sendPasswordResetEmail } from 'firebase/auth';
+import { sendPasswordResetEmail, AuthError } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 import { useAppDispatch } from '@/hooks/useAppDispatch';
 import { switchModal } from '@/store/modalSlice';
@@ -21,7 +21,7 @@ export default function ForgotPasswordForm() {
         try {
             await sendPasswordResetEmail(auth, email);
             setSuccess(true);
-        } catch (error: unknown) {
+        } catch (error: AuthError) {
             if (error.code === 'auth/user-not-found') {
                 setError('No user found with this email address.');
             } else if (error.code === 'auth/invalid-email') {
@@ -39,7 +39,7 @@ export default function ForgotPasswordForm() {
             <div className="w-full text-center">
                 <h2 className="text-2xl text-black font-bold mb-4">Check your email</h2>
                 <p className="text-gray-600 mb-6">
-                    We&apos;ve sent a password reset link to {email}
+                    We've sent a password reset link to {email}
                 </p>
                 <button
                     onClick={() => dispatch(switchModal('login'))}
@@ -55,7 +55,7 @@ export default function ForgotPasswordForm() {
         <div className="w-full">
             <h2 className="text-2xl text-black font-bold text-center mb-6">Reset your password</h2>
             <p className="text-black text-center mb-6">
-                Enter your email address and we&apos;ll send you a link to reset your password.
+                Enter your email address and we'll send you a link to reset your password.
             </p>
 
             {error && (
