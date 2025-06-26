@@ -38,7 +38,7 @@ export default function LoginForm() {
 
                 setTimeout(() => {
                     router.push(destination);
-                }, 1000);
+                }, 500);
             }
         } catch (error: unknown) {
             const firebaseError = error as { code?: string; message?: string };
@@ -91,7 +91,7 @@ export default function LoginForm() {
 
                 setTimeout(() => {
                     router.push(destination);
-                }, 1000);
+                }, 500);
             }
         } catch (error: unknown) {
             const firebaseError = error as { code?: string; message?: string };
