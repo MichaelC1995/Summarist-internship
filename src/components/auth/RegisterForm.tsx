@@ -47,11 +47,12 @@ export default function RegisterForm() {
                 router.push('/for-you');
             }
         } catch (error: unknown) {
-            if (error.code === 'auth/email-already-in-use') {
+            const firebaseError = error as { code?: string; message?: string };
+            if (firebaseError.code === 'auth/email-already-in-use') {
                 setFormError('Email already in use. Please login instead.');
-            } else if (error.code === 'auth/weak-password') {
+            } else if (firebaseError.code === 'auth/weak-password') {
                 setFormError('Password should be at least 6 characters.');
-            } else if (error.code === 'auth/invalid-email') {
+            } else if (firebaseError.code === 'auth/invalid-email') {
                 setFormError('Invalid email address.');
             } else {
                 setFormError('An error occurred. Please try again.');
