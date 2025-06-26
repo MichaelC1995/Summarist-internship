@@ -38,7 +38,7 @@ export default function LoginForm() {
 
                 setTimeout(() => {
                     router.push(destination);
-                }, 100);
+                }, 1000);
             }
         } catch (error: unknown) {
             const firebaseError = error as { code?: string; message?: string };
@@ -81,18 +81,14 @@ export default function LoginForm() {
             const userCredential = await signInWithEmailAndPassword(auth, 'guest@gmail.com', 'guest123');
 
             if (userCredential.user) {
-                // Store destination before clearing
                 const destination = intendedDestination || '/for-you';
 
-                // Clear intended destination first
                 if (intendedDestination) {
                     dispatch(clearIntendedDestination());
                 }
 
-                // Close modal
                 dispatch(closeModal());
 
-                // Use setTimeout to ensure state updates have propagated
                 setTimeout(() => {
                     router.push(destination);
                 }, 100);
