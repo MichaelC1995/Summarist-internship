@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { sendPasswordResetEmail, AuthError } from 'firebase/auth';
+import { sendPasswordResetEmail } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 import { useAppDispatch } from '@/hooks/useAppDispatch';
 import { switchModal } from '@/store/modalSlice';
@@ -21,10 +21,11 @@ export default function ForgotPasswordForm() {
         try {
             await sendPasswordResetEmail(auth, email);
             setSuccess(true);
-        } catch (error: AuthError) {
-            if (error.code === 'auth/user-not-found') {
+        } catch (error: unknown) {
+            const firebaseError = error as { code?: string };
+            if (firebaseError.code === 'auth/user-not-found') {
                 setError('No user found with this email address.');
-            } else if (error.code === 'auth/invalid-email') {
+            } else if (firebaseError.code === 'auth/invalid-email') {
                 setError('Invalid email address.');
             } else {
                 setError('An error occurred. Please try again.');
