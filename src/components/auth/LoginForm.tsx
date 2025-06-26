@@ -35,14 +35,15 @@ export default function LoginForm() {
                 router.push('/for-you');
             }
         } catch (error: unknown) {
-            console.error('Login error:', error.code, error.message);
+            const firebaseError = error as { code?: string; message?: string };
+            console.error('Login error:', firebaseError.code, firebaseError.message);
 
-            switch (error.code) {
-                case 'auth/user-disabled':
-                    setError('This account has been disabled.');
-                    break;
+            switch (firebaseError.code) {
                 case 'auth/invalid-credential':
                     setError('Invalid email or password. Please check your credentials.');
+                    break;
+                case 'auth/invalid-email':
+                    setError('Please enter a valid email address.');
                     break;
                 case 'auth/missing-password':
                     setError('Please enter your password.');
@@ -54,7 +55,7 @@ export default function LoginForm() {
                     setError('Network error. Please check your connection.');
                     break;
                 default:
-                    setError(`Login failed: ${error.message || 'Please try again.'}`);
+                    setError(`Login failed: ${firebaseError.message || 'Please try again.'}`);
             }
         } finally {
             setLoading(false);
