@@ -39,11 +39,17 @@ export default function LoginForm() {
             console.error('Login error:', firebaseError.code, firebaseError.message);
 
             switch (firebaseError.code) {
-                case 'auth/invalid-credential':
-                    setError('Invalid email or password. Please check your credentials.');
-                    break;
                 case 'auth/invalid-email':
                     setError('Please enter a valid email address.');
+                    break;
+                case 'auth/user-disabled':
+                    setError('This account has been disabled.');
+                    break;
+                case 'auth/user-not-found':
+                case 'auth/wrong-password':
+                case 'auth/invalid-credential':
+                    // Don't reveal whether email exists or not
+                    setError('Invalid email or password. Please try again.');
                     break;
                 case 'auth/missing-password':
                     setError('Please enter your password.');
@@ -55,7 +61,7 @@ export default function LoginForm() {
                     setError('Network error. Please check your connection.');
                     break;
                 default:
-                    setError(`Login failed: ${firebaseError.message || 'Please try again.'}`);
+                    setError('Login failed. Please try again.');
             }
         } finally {
             setLoading(false);
@@ -77,7 +83,8 @@ export default function LoginForm() {
                 router.push('/for-you');
             }
         } catch (error: unknown) {
-            console.error('Guest login error:', error.code, error.message);
+            const firebaseError = error as { code?: string; message?: string };
+            console.error('Guest login error:', firebaseError.code, firebaseError.message);
             setError('Guest login unavailable. Please try again.');
         } finally {
             setLoading(false);
