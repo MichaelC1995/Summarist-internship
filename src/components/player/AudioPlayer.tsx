@@ -2,11 +2,16 @@
 
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { Book } from '@/types';
+import { useAuth } from '@/hooks/useAuth';
+import { doc, updateDoc, getDoc } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
 import {
     IoPlayCircle,
     IoPauseCircle,
     IoPlaySkipBackCircle,
     IoPlaySkipForwardCircle,
+    IoCheckmarkCircle,
+    IoCheckmarkCircleOutline,
 } from 'react-icons/io5';
 import Image from 'next/image';
 
@@ -15,15 +20,90 @@ interface AudioPlayerProps {
 }
 
 export default function AudioPlayer({ book }: AudioPlayerProps) {
+    const { user } = useAuth();
     const [isPlaying, setIsPlaying] = useState(false);
     const [currentTime, setCurrentTime] = useState(0);
     const [duration, setDuration] = useState(book.duration || 0);
     const [isLoading, setIsLoading] = useState(true);
     const [isDragging, setIsDragging] = useState(false);
+    const [isFinished, setIsFinished] = useState(false);
+    const [isUpdating, setIsUpdating] = useState(false);
 
     const audioRef = useRef<HTMLAudioElement>(null);
     const progressBarRef = useRef<HTMLDivElement>(null);
     const progressWrapperRef = useRef<HTMLDivElement>(null);
+
+    // Check if book is already marked as finished on mount
+    useEffect(() => {
+        const checkFinishedStatus = async () => {
+            if (!user) return;
+
+            try {
+                const libraryRef = doc(db, 'users', user.uid, 'library', book.id);
+                const docSnap = await getDoc(libraryRef);
+
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    setIsFinished(data.finished || false);
+                }
+            } catch (error) {
+                console.error('Error checking finished status:', error);
+            }
+        };
+
+        checkFinishedStatus();
+    }, [user, book.id]);
+
+    // Toggle book finished status
+    const toggleBookFinished = async () => {
+        if (!user || isUpdating) return;
+
+        setIsUpdating(true);
+        try {
+            const libraryRef = doc(db, 'users', user.uid, 'library', book.id);
+            const docSnap = await getDoc(libraryRef);
+
+            if (docSnap.exists()) {
+                const newFinishedStatus = !isFinished;
+
+                await updateDoc(libraryRef, {
+                    finished: newFinishedStatus,
+                    ...(newFinishedStatus ? { finishedAt: new Date() } : { finishedAt: null })
+                });
+
+                setIsFinished(newFinishedStatus);
+                console.log(`Book ${newFinishedStatus ? 'marked as finished' : 'marked as unfinished'}:`, book.title);
+            } else {
+                console.warn('Book not found in library. Make sure to save it first.');
+            }
+        } catch (error) {
+            console.error('Error updating book status:', error);
+        } finally {
+            setIsUpdating(false);
+        }
+    };
+
+    // Mark book as finished when audio ends
+    const markBookAsFinished = async () => {
+        if (!user || isFinished) return;
+
+        try {
+            const libraryRef = doc(db, 'users', user.uid, 'library', book.id);
+            const docSnap = await getDoc(libraryRef);
+
+            if (docSnap.exists()) {
+                await updateDoc(libraryRef, {
+                    finished: true,
+                    finishedAt: new Date()
+                });
+
+                setIsFinished(true);
+                console.log('Book automatically marked as finished:', book.title);
+            }
+        } catch (error) {
+            console.error('Error marking book as finished:', error);
+        }
+    };
 
     useEffect(() => {
         const audio = audioRef.current;
@@ -41,14 +121,19 @@ export default function AudioPlayer({ book }: AudioPlayerProps) {
             }
         };
 
+        const handleAudioEnded = () => {
+            setIsPlaying(false);
+            markBookAsFinished();
+        };
+
         audio.addEventListener('loadeddata', setAudioData);
         audio.addEventListener('timeupdate', setAudioTime);
-        audio.addEventListener('ended', () => setIsPlaying(false));
+        audio.addEventListener('ended', handleAudioEnded);
 
         return () => {
             audio.removeEventListener('loadeddata', setAudioData);
             audio.removeEventListener('timeupdate', setAudioTime);
-            audio.removeEventListener('ended', () => setIsPlaying(false));
+            audio.removeEventListener('ended', handleAudioEnded);
         };
     }, [book.duration, isDragging]);
 
@@ -206,6 +291,25 @@ export default function AudioPlayer({ book }: AudioPlayerProps) {
                     </div>
                     <span className="text-xs text-white min-w-[40px]">{formatTime(duration)}</span>
                 </div>
+
+                {/* Manual finish button */}
+                <button
+                    onClick={toggleBookFinished}
+                    disabled={isUpdating || !user}
+                    className={`ml-4 transition-all disabled:opacity-50 ${
+                        isFinished
+                            ? 'text-green-400 hover:text-green-300'
+                            : 'text-gray-400 hover:text-white'
+                    }`}
+                    aria-label={isFinished ? 'Mark as unfinished' : 'Mark as finished'}
+                    title={isFinished ? 'Mark as unfinished' : 'Mark as finished'}
+                >
+                    {isFinished ? (
+                        <IoCheckmarkCircle size={28} />
+                    ) : (
+                        <IoCheckmarkCircleOutline size={28} />
+                    )}
+                </button>
             </div>
         </div>
     );

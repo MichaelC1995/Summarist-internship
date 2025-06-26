@@ -12,13 +12,17 @@ import { IoBookOutline, IoCheckmarkCircle } from 'react-icons/io5';
 
 export default function LibraryPage() {
     const router = useRouter();
-    const { user } = useAuth();
+    const { user, loading: authLoading } = useAuth();
     const [savedBooks, setSavedBooks] = useState<Book[]>([]);
     const [finishedBooks, setFinishedBooks] = useState<Book[]>([]);
     const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState<'saved' | 'finished'>('saved');
 
     useEffect(() => {
+        // Wait for auth to complete
+        if (authLoading) return;
+
+        // Redirect if no user
         if (!user) {
             router.push('/');
             return;
@@ -29,42 +33,80 @@ export default function LibraryPage() {
         const libraryRef = collection(db, 'users', user.uid, 'library');
         const q = query(libraryRef);
 
-        const unsubscribe = onSnapshot(q, async (snapshot) => {
-            const libraryData: { bookId: string; finished: boolean }[] = [];
+        const unsubscribe = onSnapshot(
+            q,
+            async (snapshot) => {
+                console.log('Library snapshot received:', snapshot.size, 'documents');
 
-            snapshot.forEach((doc) => {
-                libraryData.push(doc.data() as { bookId: string; finished: boolean });
-            });
-
-            const savedBooksPromises: Promise<Book>[] = [];
-            const finishedBooksPromises: Promise<Book>[] = [];
-
-            libraryData.forEach((item) => {
-                const bookPromise = bookAPI.getBookById(item.bookId);
-                if (item.finished) {
-                    finishedBooksPromises.push(bookPromise);
-                } else {
-                    savedBooksPromises.push(bookPromise);
+                if (snapshot.empty) {
+                    console.log('No books in library');
+                    setSavedBooks([]);
+                    setFinishedBooks([]);
+                    setLoading(false);
+                    return;
                 }
-            });
 
-            try {
-                const [saved, finished] = await Promise.all([
-                    Promise.all(savedBooksPromises),
-                    Promise.all(finishedBooksPromises),
-                ]);
+                const libraryData: { bookId: string; finished: boolean }[] = [];
 
-                setSavedBooks(saved);
-                setFinishedBooks(finished);
-            } catch (error) {
-                console.error('Error fetching book details:', error);
-            } finally {
+                snapshot.forEach((doc) => {
+                    const data = doc.data();
+                    console.log('Library doc:', doc.id, data);
+                    libraryData.push({
+                        bookId: data.bookId || doc.id, // Handle both bookId field and doc ID
+                        finished: data.finished || false
+                    });
+                });
+
+                const savedBooksPromises: Promise<Book>[] = [];
+                const finishedBooksPromises: Promise<Book>[] = [];
+
+                for (const item of libraryData) {
+                    try {
+                        const bookPromise = bookAPI.getBookById(item.bookId);
+                        if (item.finished) {
+                            finishedBooksPromises.push(bookPromise);
+                        } else {
+                            savedBooksPromises.push(bookPromise);
+                        }
+                    } catch (error) {
+                        console.error('Error creating book promise for:', item.bookId, error);
+                    }
+                }
+
+                try {
+                    const [saved, finished] = await Promise.all([
+                        Promise.all(savedBooksPromises),
+                        Promise.all(finishedBooksPromises),
+                    ]);
+
+                    console.log('Fetched saved books:', saved.length);
+                    console.log('Fetched finished books:', finished.length);
+
+                    setSavedBooks(saved.filter(book => book !== null));
+                    setFinishedBooks(finished.filter(book => book !== null));
+                } catch (error) {
+                    console.error('Error fetching book details:', error);
+                } finally {
+                    setLoading(false);
+                }
+            },
+            (error) => {
+                console.error('Error listening to library:', error);
                 setLoading(false);
             }
-        });
+        );
 
         return () => unsubscribe();
-    }, [user, router]);
+    }, [user, router, authLoading]);
+
+    // Show loading while auth is checking
+    if (authLoading) {
+        return (
+            <div className="flex items-center justify-center min-h-screen">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-500"></div>
+            </div>
+        );
+    }
 
     if (!user) {
         return null;
