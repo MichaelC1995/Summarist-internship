@@ -76,19 +76,22 @@ export default function AudioPlayer({ book }: AudioPlayerProps) {
         audio.currentTime = Math.min(duration, audio.currentTime + 10);
     };
 
-    const updateProgress = (clientX: number) => {
-        const audio = audioRef.current;
-        const progressBar = progressBarRef.current;
-        if (!audio || !progressBar) return;
+    const updateProgress = useCallback(
+        (clientX: number) => {
+            const audio = audioRef.current;
+            const progressBar = progressBarRef.current;
+            if (!audio || !progressBar) return;
 
-        const rect = progressBar.getBoundingClientRect();
-        const x = Math.max(0, Math.min(clientX - rect.left, rect.width));
-        const percentage = x / rect.width;
-        const newTime = percentage * duration;
+            const rect = progressBar.getBoundingClientRect();
+            const x = Math.max(0, Math.min(clientX - rect.left, rect.width));
+            const percentage = x / rect.width;
+            const newTime = percentage * duration;
 
-        audio.currentTime = newTime;
-        setCurrentTime(newTime);
-    };
+            audio.currentTime = newTime;
+            setCurrentTime(newTime);
+        },
+        [duration, setCurrentTime]
+    );
 
     const handleProgressClick = (e: React.MouseEvent<HTMLDivElement>) => {
         updateProgress(e.clientX);
