@@ -25,14 +25,20 @@ export default function LoginForm() {
         setLoading(true);
 
         try {
-            await signInWithEmailAndPassword(auth, email, password);
-            dispatch(closeModal());
+            const userCredential = await signInWithEmailAndPassword(auth, email, password);
 
-            if (intendedDestination) {
-                router.push(intendedDestination);
-                dispatch(clearIntendedDestination());
-            } else {
-                router.push('/for-you');
+            if (userCredential.user) {
+                const destination = intendedDestination || '/for-you';
+
+                if (intendedDestination) {
+                    dispatch(clearIntendedDestination());
+                }
+
+                dispatch(closeModal());
+
+                setTimeout(() => {
+                    router.push(destination);
+                }, 100);
             }
         } catch (error: unknown) {
             const firebaseError = error as { code?: string; message?: string };
@@ -48,7 +54,6 @@ export default function LoginForm() {
                 case 'auth/user-not-found':
                 case 'auth/wrong-password':
                 case 'auth/invalid-credential':
-                    // Don't reveal whether email exists or not
                     setError('Invalid email or password. Please try again.');
                     break;
                 case 'auth/missing-password':
@@ -73,14 +78,24 @@ export default function LoginForm() {
         setError('');
 
         try {
-            await signInWithEmailAndPassword(auth, 'guest@gmail.com', 'guest123');
-            dispatch(closeModal());
+            const userCredential = await signInWithEmailAndPassword(auth, 'guest@gmail.com', 'guest123');
 
-            if (intendedDestination) {
-                router.push(intendedDestination);
-                dispatch(clearIntendedDestination());
-            } else {
-                router.push('/for-you');
+            if (userCredential.user) {
+                // Store destination before clearing
+                const destination = intendedDestination || '/for-you';
+
+                // Clear intended destination first
+                if (intendedDestination) {
+                    dispatch(clearIntendedDestination());
+                }
+
+                // Close modal
+                dispatch(closeModal());
+
+                // Use setTimeout to ensure state updates have propagated
+                setTimeout(() => {
+                    router.push(destination);
+                }, 100);
             }
         } catch (error: unknown) {
             const firebaseError = error as { code?: string; message?: string };
